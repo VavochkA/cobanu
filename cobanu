@@ -1,0 +1,80 @@
+import speech_recognition as sr
+import datetime as dt
+import webbrowser as wb
+import pyttsx3
+
+
+def talk(words):
+    engine = pyttsx3.init()
+    engine.say(words)
+    engine.runAndWait()  # озвучивает слова
+
+
+def speak():
+    global command
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        talk('Говорите')
+        r.pause_threshold = 1
+        r.adjust_for_ambient_noise(source, duration=1)
+        audio = r.listen(source)  # слова пользователя
+
+    try:  # проверка на распознаваемость
+        command = r.recognize_google(audio).lower()
+    except sr.UnknownValueError:
+        talk('Повторите отчетливей, пожалуйста')
+        command = speak()
+    return command
+    # Прослушивает речь пользователя, выжидая определенное время пред запуском и возвращает как значение определенную команду
+
+
+def main():
+    global map, command, flag, x1, x2, y1, y2
+    talk('Скажите команду')
+    speak()
+    if command == 'время' or command == 'time':
+        now = dt.datetime.now()
+        time = str(now.hour) + 'часов' + str(now.minute) + 'минут'
+        talk(time)
+    elif 'пункт' in command:
+        finish_place = command
+        talk('Скажите, где вы сейчас')
+        start_place = speak()
+        for i in range(len(map)):
+            if start_place in map[i]:
+                for j in range(len(map[i])):
+                    if map[i][j] == start_place:
+                        x1 = i
+                        y1 = j
+                        break
+                break
+            else:
+                continue
+        for i in range(len(map)):
+            if finish_place in map[i]:
+                for j in range(len(map[i])):
+                    if map[i][j] == finish_place:
+                        x2 = i
+                        y2 = j
+                        break
+                break
+            else:
+                continue
+        if x1 < x2:
+            talk("Идите прямо {} шагов".format(20 * x1 - x2))
+        elif x1 > x2:
+            talk("Развернитесь и идите прямо {} шагов".format(20 * x2 - x1))
+        if y1 < y2:
+            talk("Идите направо {} шагов".format(20 * y1 - y2))
+        elif y1 > y2:
+            talk("идите налево {} шагов".format(20 * y2 - y1))
+    elif command == 'Такси':
+        wb.open('https://taxi.yandex.ru/#index')
+    elif command == 'стоп':
+        flag = False
+
+
+a, b, flag = int(input()), int(input()), True
+map = [[input() for i in range(a)] for j in range(b)]
+while flag:
+    main()
