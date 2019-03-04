@@ -1,0 +1,52 @@
+import pyttsx3  # работа со звуком
+import datetime as dt  # работа со временем
+import webbrowser as wb  # работа с браузером
+
+
+def talk(words):
+    engine = pyttsx3.init()
+    engine.say(words)
+    engine.runAndWait()  # озвучивает слова
+
+
+map = [['Поликлиника', 'станция метро 1', 'Супермаркет', 'Подземный переход'],  # наша карта
+       ['Станция метро 2', 'школа номер', 'Парковка', 'Планетарий'],
+       ['Торговый центр', 'фонтан', 'магазин электроники', 'перекресток'],
+       ['Прачечная', 'автосалон', 'гостиница', 'Парк']]
+
+for i in range(len(map)):
+    for j in range(len(map[i])):
+        print(map[i][j].ljust(20, ' ').title(), end=' ')
+    print('\n')  # вывод карты в удомном виде
+
+y2, x2, flag = int(input()), int(input()), True
+
+
+def main():
+    global x2, y2
+    x1, y1 = x2, y2
+    y2, x2 = int(input()), int(input())
+    
+    if x1 != x2 != y1 != y2:
+        if x1 < x2:
+            talk("Идите направо {} шагов до пункта {}".format(20 * (x2 - x1), map[y2 - 1][x1 - 1]))
+        elif x1 > x2:
+            talk("идите налево {} шагов до пункта {}".format(20 * (x1 - x2), map[y2 - 1][x1 - 1]))
+        if y1 > y2:
+            talk("Идите прямо {} шагов до пункта {}".format(20 * (y1 - y2), map[y2 - 1][x2 - 1]))
+        elif y1 < y2:
+            talk("Развернитесь и идите прямо {} шагов до пункта {}".format(20 * (y2 - y1), map[y2 - 1][x2 - 1]))
+            
+    elif x1 == 0:
+        now = dt.datetime.now()
+        talk('Сейчас {} часов {} минут'.format(now.hour, now.minute))
+        
+    elif x1 == 1:
+        wb.open('https://taxi.yandex.ru/#index')
+        
+    else:
+        flag = False
+        
+        
+while flag:
+    main()
